@@ -1,3 +1,18 @@
+buildscript {
+    dependencies {
+        constraints {
+            // spring-boot-buildpack-platform 4.1.1 pulls these on the plugin classpath;
+            // project-level constraints below cannot reach it, but the SBOM includes it.
+            classpath("tools.jackson.core:jackson-databind:3.2.3") {
+                because("buildpack platform pulls 3.1.5 (Dependabot alerts 5-9)")
+            }
+            classpath("org.apache.commons:commons-lang3:3.21.0") {
+                because("buildpack platform pulls 3.16.0 (Dependabot alert 1)")
+            }
+        }
+    }
+}
+
 plugins {
     java
     id("org.springframework.boot") version "4.1.1"
