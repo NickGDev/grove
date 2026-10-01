@@ -15,6 +15,11 @@ java {
     }
 }
 
+// Override vulnerable BOM-managed versions (Dependabot fixes)
+extra["tomcat.version"] = "11.0.26"        // fixes CVE-2026-65905, CVE-2026-65182, CVE-2026-68525
+extra["jackson-bom.version"] = "3.1.7"     // fixes CVE-2026-68497, CVE-2026-91777, CVE-2026-91776, CVE-2026-83557, CVE-2026-19032
+extra["commons-lang3.version"] = "3.21.0"  // CVE-2025-48924 fixed in 3.18.0; explicit pin
+
 repositories {
     mavenCentral()
 }
