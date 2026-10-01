@@ -61,13 +61,21 @@ public class SignupController {
 
   private static String validate(String email, String name, String password, String crecheName) {
     if (email == null || email.isBlank()) return "Enter your email.";
-    if (!email.trim().matches(".+@.+\\..+")) return "Enter a valid email address.";
+    if (!looksLikeEmail(email.trim())) return "Enter a valid email address.";
     if (name == null || name.isBlank()) return "Enter your name.";
     if (crecheName == null || crecheName.isBlank()) return "Enter your creche's name.";
     if (password == null || password.length() < 12) {
       return "Password must be at least 12 characters.";
     }
     return null;
+  }
+
+  /** Linear replacement for the polynomial regex ".+@.+\\..+" (CodeQL ReDoS). */
+  private static boolean looksLikeEmail(String e) {
+    int at = e.indexOf('@');
+    if (at < 1) return false;                       // .+ before @
+    int dot = e.indexOf('.', at + 2);               // .+ then . after @
+    return dot > 0 && dot < e.length() - 1;         // .+ after the dot
   }
 
   private void authenticate(String email, String password,
