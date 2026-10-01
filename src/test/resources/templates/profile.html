@@ -1,0 +1,13 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>profile test stub</title></head>
+<body>
+<h1 th:text="${name}"></h1>
+<div th:each="p : ${passkeys}" class="passkey">
+  <span class="label" th:text="${p.label}"></span>
+  <span class="cred-id" th:text="${p.credentialId}"></span>
+  <span class="created" th:text="${p.created}"></span>
+</div>
+<span id="webauthn" th:text="${webauthnEnabled}"></span>
+</body>
+</html>

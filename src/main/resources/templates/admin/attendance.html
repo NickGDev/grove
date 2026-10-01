@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout :: head('Attendance')}"></head>
+<body class="bg-canvas text-ink font-sans antialiased" hx-boost="true">
+  <div th:replace="~{layout :: nav('attendance')}"></div>
+
+  <main class="page">
+    <h1 class="text-[28px] font-semibold tracking-[-0.03em]">Attendance</h1>
+    <p class="mt-1 text-[15px] text-muted">Today's register, one tap per child.</p>
+
+    <div th:replace="~{admin/fragments/attendance-panel :: panel}"></div>
+  </main>
+
+  <!-- Toast -->
+  <div x-data="{ msg: null }" @attendance-updated.window="msg = 'Register updated'; setTimeout(() => msg = null, 3000)">
+    <div x-show="msg" x-cloak x-text="msg" role="status"
+         class="fixed bottom-[88px] left-1/2 z-50 -translate-x-1/2 rounded-[10px] bg-ink px-4 py-3 text-[15px] text-panel md:bottom-6">Register updated</div>
+  </div>
+
+  <script>
+    document.body.addEventListener('htmx:responseError', () => window.dispatchEvent(new CustomEvent('attendance-error')));
+  </script>
+</body>
+</html>

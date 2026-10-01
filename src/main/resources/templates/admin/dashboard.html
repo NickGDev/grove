@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout :: head('Dashboard')}"></head>
+<body class="bg-canvas text-ink font-sans antialiased" hx-boost="true">
+  <div th:replace="~{layout :: nav('dashboard')}"></div>
+
+  <main class="page">
+    <h1 class="text-[28px] font-semibold tracking-[-0.03em]">Dashboard</h1>
+    <p class="mt-1 text-[15px] text-muted">Today at a glance.</p>
+
+    <div class="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
+      <div class="rounded-card border border-line bg-panel p-4 md:bg-canvas">
+        <p class="text-[13px] uppercase tracking-[0.04em] text-muted">In today</p>
+        <p class="mt-2 text-2xl font-medium tracking-[-0.03em] tabular-nums" th:text="${presentToday}">3</p>
+      </div>
+      <div class="rounded-card border border-line bg-panel p-4 md:bg-canvas">
+        <p class="text-[13px] uppercase tracking-[0.04em] text-muted">Children</p>
+        <p class="mt-2 text-2xl font-medium tracking-[-0.03em] tabular-nums" th:text="${childrenCount}">5</p>
+      </div>
+      <div class="rounded-card border border-line bg-panel p-4 md:bg-canvas">
+        <p class="text-[13px] uppercase tracking-[0.04em] text-muted">Rooms</p>
+        <p class="mt-2 text-2xl font-medium tracking-[-0.03em] tabular-nums" th:text="${roomsCount}">4</p>
+      </div>
+    </div>
+
+    <div class="mt-6 rounded-card border border-line bg-panel px-6 py-10 text-center md:bg-canvas">
+      <p class="text-[15px] text-muted">A calm start to the day.</p>
+      <div class="mt-4 flex flex-wrap justify-center gap-3">
+        <a href="/admin/attendance" class="inline-flex h-11 items-center rounded-ctl bg-ink px-5 text-[15px] font-medium text-panel hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink">Open today's register</a>
+        <a href="/admin/fees" class="inline-flex h-11 items-center rounded-ctl border border-line px-5 text-[15px] text-ink hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">Easy fees</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout :: head('Your profile')}"></head>
+<body class="bg-canvas text-ink font-sans antialiased" hx-boost="true">
+  <div th:replace="~{layout :: nav('profile')}"></div>
+
+  <main class="page">
+    <h1 class="text-[28px] font-semibold tracking-[-0.03em]">Your profile</h1>
+    <p class="mt-1 text-[15px] text-muted">Passkeys sign you in with a fingerprint or face — no password to forget.</p>
+
+    <section class="mt-8 rounded-card border border-line bg-panel p-6 md:bg-canvas" aria-labelledby="passkeys-heading">
+      <h2 id="passkeys-heading" class="text-[17px] font-semibold tracking-[-0.03em]">Passkeys</h2>
+
+      <div id="passkey-error" hidden class="mt-4 rounded-ctl border border-overdue/40 bg-overdue/10 px-4 py-3 text-[14px]" role="alert">
+        That didn't work. The passkey wasn't added — try again.
+      </div>
+
+      <ul th:if="${!#lists.isEmpty(passkeys)}" class="mt-4 divide-y divide-line border-y border-line">
+        <li th:each="pk : ${passkeys}" class="flex flex-wrap items-center gap-4 py-3">
+          <svg viewBox="0 0 24 24" class="size-4 shrink-0 text-muted" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="12" r="3"/><path d="m11 12h9m-3 0v3"/></svg>
+          <span class="min-w-0 flex-1 truncate text-[15px]" th:text="${pk.label} ?: 'Passkey'">MacBook Touch ID</span>
+          <span class="text-[13px] text-muted" th:text="'Added ' + ${#temporals.format(pk.created, 'd MMM yyyy')}">Added 30 Sep 2026</span>
+          <button type="button" th:data-cred="${pk.credentialId}" onclick="groveRemovePasskey(this)"
+                  class="inline-flex h-11 items-center rounded-[10px] border border-line px-4 text-[15px] text-muted hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+            Remove
+          </button>
+        </li>
+      </ul>
+
+      <p th:if="${#lists.isEmpty(passkeys)}" class="mt-4 text-[15px] text-muted">No passkeys yet. Add one and skip the password next time.</p>
+
+      <div th:if="${webauthnEnabled}" class="mt-6 flex flex-wrap items-center gap-3">
+        <label for="passkey-label" class="sr-only">Name this passkey</label>
+        <input type="text" id="passkey-label" placeholder="Name this passkey (e.g. iPhone)"
+               class="h-11 w-full max-w-[260px] rounded-ctl border border-line bg-panel px-4 text-[15px] outline-none focus-visible:ring-2 focus-visible:ring-ink/60">
+        <button type="button" id="add-passkey"
+                onclick="const b=this,e=document.getElementById('passkey-error'),l=document.getElementById('passkey-label');b.disabled=true;e.hidden=true;groveWebAuthn.register(l.value||'Passkey').then(()=>window.location.reload()).catch(()=>{e.hidden=false;b.disabled=false})"
+                class="inline-flex h-11 items-center rounded-[10px] bg-ink px-4 text-[15px] font-medium text-panel hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-50">
+          Add passkey
+        </button>
+      </div>
+    </section>
+
+    <section class="mt-6 rounded-card border border-line bg-panel p-6 md:bg-canvas" aria-labelledby="account-heading">
+      <h2 id="account-heading" class="text-[17px] font-semibold tracking-[-0.03em]">Account</h2>
+      <dl class="mt-4 flex flex-col gap-3 text-[15px]">
+        <div class="flex flex-wrap justify-between gap-2"><dt class="text-muted">Name</dt><dd th:text="${name}">Demo Owner</dd></div>
+        <div class="flex flex-wrap justify-between gap-2"><dt class="text-muted">Email</dt><dd th:text="${email}">demo@grove.ie</dd></div>
+      </dl>
+      <p class="mt-4 text-[13px] text-muted">Name, email and password changes land with the invites update.</p>
+    </section>
+  </main>
+
+  <script th:src="@{/js/webauthn.js}"></script>
+  <script>
+    function groveRemovePasskey(btn) {
+      btn.disabled = true;
+      document.getElementById('passkey-error').hidden = true;
+      groveWebAuthn.remove(btn.dataset.cred)
+        .then(() => window.location.reload())
+        .catch(() => { document.getElementById('passkey-error').hidden = false; btn.disabled = false; });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create your creche · Grove</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="bg-canvas text-ink font-sans antialiased">
+  <main class="mx-auto flex min-h-dvh w-full max-w-[440px] flex-col justify-center px-4 py-10">
+    <div class="mb-8 flex items-center gap-3">
+      <span class="flex size-9 items-center justify-center rounded-full bg-peach">
+        <svg viewBox="0 0 24 24" class="size-[18px]" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21c-4-3-7-6.5-7-10a7 7 0 0 1 14 0c0 3.5-3 7-7 10Z"/><path d="M12 3v4"/></svg>
+      </span>
+      <h1 class="text-[22px] font-semibold tracking-[-0.03em]">Grove</h1>
+    </div>
+
+    <div class="rounded-card border border-line bg-panel p-6 sm:p-8">
+      <h2 class="text-[28px] font-semibold tracking-[-0.03em]">Create your creche</h2>
+      <p class="mt-1 text-[15px] text-muted">Fourteen days free, no card. You'll be the owner.</p>
+
+      <div th:if="${error}" class="mt-4 rounded-ctl border border-overdue/40 bg-overdue/10 px-4 py-3 text-[14px]" role="alert">
+        <span th:text="${error}">That didn't work. Check the details and try again.</span>
+      </div>
+
+      <form th:action="@{/signup}" method="post" class="mt-6 flex flex-col gap-4">
+        <div>
+          <label for="name" class="mb-2 block text-[13px] font-normal uppercase tracking-[0.04em] text-muted">Your name</label>
+          <input type="text" id="name" name="name" required autocomplete="name" autofocus
+                 class="h-11 w-full rounded-ctl border border-line bg-panel px-4 text-[15px] outline-none focus-visible:ring-2 focus-visible:ring-ink/60">
+        </div>
+        <div>
+          <label for="email" class="mb-2 block text-[13px] font-normal uppercase tracking-[0.04em] text-muted">Email</label>
+          <input type="email" id="email" name="email" required autocomplete="email"
+                 class="h-11 w-full rounded-ctl border border-line bg-panel px-4 text-[15px] outline-none focus-visible:ring-2 focus-visible:ring-ink/60">
+        </div>
+        <div>
+          <label for="password" class="mb-2 block text-[13px] font-normal uppercase tracking-[0.04em] text-muted">Password</label>
+          <input type="password" id="password" name="password" required minlength="12" autocomplete="new-password"
+                 aria-describedby="password-hint"
+                 class="h-11 w-full rounded-ctl border border-line bg-panel px-4 text-[15px] outline-none focus-visible:ring-2 focus-visible:ring-ink/60">
+          <p id="password-hint" class="mt-2 text-[13px] text-muted">At least 12 characters.</p>
+        </div>
+        <div>
+          <label for="crecheName" class="mb-2 block text-[13px] font-normal uppercase tracking-[0.04em] text-muted">Creche name</label>
+          <input type="text" id="crecheName" name="crecheName" required autocomplete="organization"
+                 class="h-11 w-full rounded-ctl border border-line bg-panel px-4 text-[15px] outline-none focus-visible:ring-2 focus-visible:ring-ink/60">
+        </div>
+        <button type="submit" class="mt-1 h-11 rounded-ctl bg-ink text-[15px] font-medium text-panel hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink">
+          Create your creche
+        </button>
+      </form>
+    </div>
+
+    <p class="mt-6 text-center text-[14px] text-muted">Already with us? <a href="/login" class="inline-flex min-h-[44px] items-center text-ink underline underline-offset-4">Sign in</a></p>
+  </main>
+</body>
+</html>

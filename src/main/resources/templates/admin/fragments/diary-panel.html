@@ -1,0 +1,89 @@
+<!-- Diary: room sections, one-tap quick-add per child, today's entries. Swapped whole by htmx. -->
+<div th:fragment="panel" id="diary-panel" x-data>
+
+  <div class="diary-body">
+    <div class="mt-6 flex flex-col gap-6">
+      <section th:each="room : ${rooms}" class="overflow-hidden rounded-card border border-line bg-panel md:bg-canvas" th:aria-label="'Diary — ' + ${room.name}">
+        <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-6 py-4">
+          <h2 class="text-[17px] font-semibold tracking-[-0.03em]" th:text="${room.name}">Nestlings</h2>
+          <p class="text-[13px] uppercase tracking-[0.04em] text-muted">
+            <span class="tabular-nums" th:text="${#lists.size(room.children)}">2</span> children
+          </p>
+        </div>
+
+        <ul class="divide-y divide-line">
+          <li th:each="child : ${room.children}" class="px-6 py-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-[15px] text-ink" th:text="${child.name}">Maria Jones</span>
+              <!-- One-tap quick-add -->
+              <span class="flex flex-wrap items-center gap-2">
+                <button type="button" th:attr="hx-post=@{/admin/diary/{id}/entry(id=${child.childId},type='MEAL')}"
+                        hx-target="#diary-panel" hx-swap="outerHTML" hx-indicator="#diary-panel"
+                        class="inline-flex h-11 items-center rounded-[10px] border border-line px-4 text-[15px] text-ink hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+                  Meal
+                </button>
+                <button type="button" th:attr="hx-post=@{/admin/diary/{id}/entry(id=${child.childId},type='NAP')}"
+                        hx-target="#diary-panel" hx-swap="outerHTML" hx-indicator="#diary-panel"
+                        class="inline-flex h-11 items-center rounded-[10px] border border-line px-4 text-[15px] text-ink hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+                  Nap
+                </button>
+                <button type="button" th:attr="hx-post=@{/admin/diary/{id}/entry(id=${child.childId},type='TOILET')}"
+                        hx-target="#diary-panel" hx-swap="outerHTML" hx-indicator="#diary-panel"
+                        class="inline-flex h-11 items-center rounded-[10px] border border-line px-4 text-[15px] text-ink hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+                  Toilet
+                </button>
+                <span x-data="{ open: false }" class="inline-flex">
+                  <button type="button" @click="open = !open" :aria-expanded="open"
+                          class="inline-flex h-11 items-center rounded-[10px] border border-line px-4 text-[15px] text-ink hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+                    Note
+                  </button>
+                  <form th:attr="hx-post=@{/admin/diary/{id}/entry(id=${child.childId},type='NOTE')}"
+                        hx-target="#diary-panel" hx-swap="outerHTML" hx-indicator="#diary-panel"
+                        x-show="open" x-cloak class="ml-2 flex items-center gap-2">
+                    <label class="sr-only" th:for="'note-' + ${child.childId}">Note for <span th:text="${child.name}">Maria</span></label>
+                    <input type="text" th:id="'note-' + ${child.childId}" name="body" placeholder="What happened?"
+                           class="h-11 w-44 rounded-[10px] border border-line bg-panel px-3 text-[15px] outline-none focus-visible:ring-2 focus-visible:ring-ink/60">
+                    <button type="submit"
+                            class="inline-flex h-11 items-center rounded-[10px] bg-ink px-4 text-[15px] font-medium text-panel hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink">
+                      Add
+                    </button>
+                  </form>
+                </span>
+              </span>
+            </div>
+
+            <!-- Today's entries, newest first -->
+            <ul th:if="${!#lists.isEmpty(child.entries)}" class="mt-3 flex flex-col gap-2">
+              <li th:each="e : ${child.entries}" class="flex items-baseline gap-3 text-[15px]">
+                <span class="inline-flex items-center rounded-full bg-active px-3 py-1 text-[13px]"
+                      th:text="${e.type == 'MEAL'} ? 'Meal' : (${e.type == 'NAP'} ? 'Nap' : (${e.type == 'TOILET'} ? 'Toilet' : (${e.type == 'ACTIVITY'} ? 'Activity' : 'Note')))">Meal</span>
+                <span th:if="${e.body}" class="min-w-0 flex-1 text-ink" th:text="${e.body}">Ate everything</span>
+                <span class="ml-auto shrink-0 text-[13px] text-muted tabular-nums"
+                      th:text="${e.recordedAt} + ' · ' + ${e.recordedBy}">10:12 · Maria's teacher</span>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div class="htmx-indicator mt-6 overflow-hidden rounded-card border border-line bg-panel md:bg-canvas" aria-hidden="true">
+    <div class="h-14 border-b border-line/60"></div>
+    <div class="h-14 border-b border-line/60"></div>
+    <div class="h-14 border-b border-line/60"></div>
+    <div class="h-14"></div>
+  </div>
+
+  <!-- Load error -->
+  <div x-data="{ shown: false }" @diary-error.window="shown = true" x-show="shown" x-cloak
+       class="mt-4 rounded-card border border-overdue/40 bg-overdue/10 px-4 py-3 text-[15px]" role="alert">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <p>Couldn't add that entry. Check your connection and try again.</p>
+      <button type="button" th:attr="hx-get=@{/admin/diary/panel}"
+              hx-target="#diary-panel" hx-swap="outerHTML" hx-indicator="#diary-panel"
+              class="inline-flex min-h-[44px] items-center rounded-[10px] border border-line bg-panel px-4 text-[15px] hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">Retry</button>
+    </div>
+  </div>
+</div>

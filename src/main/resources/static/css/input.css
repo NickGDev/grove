@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  /* design.md tokens */
+  --color-canvas: #FAFAF8;
+  --color-panel: #FFFFFF;
+  --color-ink: #232321;
+  --color-muted: #6E6E69;
+  --color-line: #ECE9E2;
+  --color-active: #EDE8DA;
+  --color-mint: #C3E4D3;
+  --color-due: #F4D24B;
+  --color-paid: #7ED48E;
+  --color-peach: #F0916B;
+  --color-overdue: #D97C7C;
+
+  /* design.md: sidebar/desktop kicks in at 900px */
+  --breakpoint-md: 56.25rem;
+
+  --radius-ctl: 10px;
+  --radius-card: 14px;
+  --radius-window: 28px;
+
+  --font-sans: "Figtree", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+[x-cloak] { display: none !important; }
+
+/* htmx loading states for the fees panel */
+.htmx-indicator { display: none; }
+.htmx-request .htmx-indicator { display: block; }
+#fees-panel.htmx-request .fees-body { display: none; }
+#attendance-panel.htmx-request .attendance-body { display: none; }
+#diary-panel.htmx-request .diary-body { display: none; }
+@keyframes grove-shimmer { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+#fees-panel.htmx-request .summary-value,
+#attendance-panel.htmx-request .text-2xl { animation: grove-shimmer 1.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  #fees-panel.htmx-request .summary-value,
+  #attendance-panel.htmx-request .text-2xl { animation: none; }
+}
+
+/* Page content region: single source for the shell paddings (design.md: 44px left, 40px top, panel bg on desktop) */
+.page {
+  min-height: 100dvh;
+  padding: 24px 16px 96px;
+}
+@media (min-width: 900px) {
+  .page {
+    margin-left: 240px;
+    background: var(--color-panel);
+    padding: 40px 40px 40px 44px;
+  }
+}

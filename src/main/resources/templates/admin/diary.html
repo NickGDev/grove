@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout :: head('Diary')}"></head>
+<body class="bg-canvas text-ink font-sans antialiased" hx-boost="true">
+  <div th:replace="~{layout :: nav('diary')}"></div>
+
+  <main class="page">
+    <h1 class="text-[28px] font-semibold tracking-[-0.03em]">Diary</h1>
+    <p class="mt-1 text-[15px] text-muted">Today's moments, one tap each. Parents see these as they happen.</p>
+
+    <div th:replace="~{admin/fragments/diary-panel :: panel}"></div>
+  </main>
+
+  <!-- Toast -->
+  <div x-data="{ msg: null }" @diary-entry-added.window="msg = 'Added to the diary'; setTimeout(() => msg = null, 3000)">
+    <div x-show="msg" x-cloak x-text="msg" role="status"
+         class="fixed bottom-[88px] left-1/2 z-50 -translate-x-1/2 rounded-[10px] bg-ink px-4 py-3 text-[15px] text-panel md:bottom-6">Added to the diary</div>
+  </div>
+
+  <script>
+    document.body.addEventListener('htmx:responseError', () => window.dispatchEvent(new CustomEvent('diary-error')));
+  </script>
+</body>
+</html>

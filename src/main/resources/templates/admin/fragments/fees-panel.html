@@ -1,0 +1,156 @@
+<!-- Easy fees panel: summary cards + week switcher + table. Swapped whole by htmx on week change. -->
+<div th:fragment="panel" id="fees-panel" x-data>
+
+  <!-- Summary cards -->
+  <div class="mt-8 flex flex-wrap gap-4">
+    <div class="flex min-w-[190px] flex-1 items-center gap-4 rounded-card border border-line bg-panel p-4 md:max-w-[220px] md:flex-none md:bg-canvas">
+      <span class="w-1.5 shrink-0 self-stretch rounded-full bg-due" aria-hidden="true"></span>
+      <div>
+        <p class="summary-value text-2xl font-medium tracking-[-0.03em] tabular-nums" th:text="'€' + ${#numbers.formatDecimal(totalOutstanding / 100.0, 1, 0)}">€34,599</p>
+        <p class="mt-1 text-[13px] uppercase tracking-[0.04em] text-muted">Total due</p>
+      </div>
+    </div>
+    <div class="flex min-w-[190px] flex-1 items-center gap-4 rounded-card border border-line bg-panel p-4 md:max-w-[220px] md:flex-none md:bg-canvas">
+      <span class="w-1.5 shrink-0 self-stretch rounded-full bg-paid" aria-hidden="true"></span>
+      <div>
+        <p class="summary-value text-2xl font-medium tracking-[-0.03em] tabular-nums" th:text="'€' + ${#numbers.formatDecimal(totalPaid / 100.0, 1, 0)}">€24,100</p>
+        <p class="mt-1 text-[13px] uppercase tracking-[0.04em] text-muted">Paid</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Week switcher -->
+  <div class="mt-6 flex flex-wrap items-center gap-4">
+    <div class="flex overflow-hidden rounded-[10px] border border-line" role="group" aria-label="Change week">
+      <button type="button" th:attr="hx-get=@{/admin/fees/panel(week=${prevWeek},sort=${sort})}"
+              hx-target="#fees-panel" hx-swap="outerHTML" hx-indicator="#fees-panel"
+              class="flex h-11 w-11 items-center justify-center border-r border-line bg-panel text-ink hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink md:bg-canvas"
+              aria-label="Previous week">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
+      </button>
+      <button type="button" th:attr="hx-get=@{/admin/fees/panel(week=${nextWeek},sort=${sort})}"
+              hx-target="#fees-panel" hx-swap="outerHTML" hx-indicator="#fees-panel"
+              class="flex h-11 w-11 items-center justify-center bg-panel text-ink hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink md:bg-canvas"
+              aria-label="Next week">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg>
+      </button>
+    </div>
+    <p class="text-[15px] tabular-nums" th:text="${weekLabel}" aria-live="polite">Jul 2023, Week 28</p>
+    <button type="button" th:unless="${isCurrentWeek}" th:attr="hx-get=@{/admin/fees/panel(sort=${sort})}"
+            hx-target="#fees-panel" hx-swap="outerHTML" hx-indicator="#fees-panel"
+            class="inline-flex h-11 items-center rounded-[10px] border border-line bg-panel px-4 text-[15px] text-muted hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink md:bg-canvas">
+      Today
+    </button>
+  </div>
+
+  <div class="fees-body">
+    <!-- Fees table -->
+    <div class="mt-6 overflow-x-auto rounded-card border border-line bg-panel md:bg-canvas">
+      <table class="w-full min-w-[680px] border-collapse text-left">
+        <thead>
+          <tr class="h-10 text-[13px] uppercase tracking-[0.04em] text-muted">
+            <th scope="col" th:aria-sort="${sort == 'asc' ? 'ascending' : 'descending'}">
+              <button type="button" th:attr="hx-get=@{/admin/fees/panel(week=${weekParam},sort=${sort == 'asc' ? 'desc' : 'asc'})}"
+                      hx-target="#fees-panel" hx-swap="outerHTML" hx-indicator="#fees-panel"
+                      class="inline-flex h-10 items-center gap-1 pl-6 pr-2 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+                Child
+                <svg viewBox="0 0 24 24" class="size-3.5" th:classappend="${sort == 'desc'} ? 'rotate-180'" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+            </th>
+            <th scope="col" class="pr-6 font-normal">Parents</th>
+            <th scope="col" class="pr-6 text-right font-normal">Due</th>
+            <th scope="col" class="pr-6 text-right font-normal">Paid</th>
+            <th scope="col" class="pr-6 font-normal">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="row : ${rows}" tabindex="0" role="button" th:data-id="${row.id}"
+              @click="$dispatch('open-row', $el.dataset.id)" @keydown.enter="$dispatch('open-row', $el.dataset.id)"
+              th:aria-label="'Invoice for ' + ${row.child}"
+              @row-focus.window="if ($event.detail == $el.dataset.id) $el.focus()"
+              class="h-14 cursor-pointer border-t border-line hover:bg-active/40 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink">
+            <td class="max-w-[160px] truncate pl-6 text-[15px] text-ink" th:text="${row.child}">Maria Jones</td>
+            <td class="max-w-[260px] truncate pr-6 text-[15px] text-muted" th:title="${row.parents}" th:text="${row.parents}">Alison Jones, John Jones</td>
+            <td class="pr-6 text-right text-[15px] tabular-nums" th:text="'€' + ${#numbers.formatDecimal(row.dueCents() / 100.0, 1, 2)}">€187.50</td>
+            <td class="pr-6 text-right text-[15px] tabular-nums" th:text="'€' + ${#numbers.formatDecimal(row.paidCents() / 100.0, 1, 2)}">€187.50</td>
+            <td class="pr-6">
+              <span class="inline-flex items-center rounded-full px-3 py-1 text-[13px]"
+                    th:classappend="${row.status() == 'PAID'} ? 'bg-paid/30' : 'bg-due/30'"
+                    th:text="${row.status() == 'PAID'} ? 'Paid' : (${row.status() == 'PART_PAID'} ? 'Part-paid' : 'Due')">Paid</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty week -->
+      <div th:if="${#lists.isEmpty(rows)}" class="px-6 py-12 text-center">
+        <p class="text-[15px] text-muted">No fees for this week. Fees appear once children are booked in.</p>
+        <a href="/admin" class="mt-4 inline-flex min-h-[44px] items-center text-[15px] text-ink underline underline-offset-4">Back to dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading skeleton: shown while htmx swaps this panel -->
+    <div class="htmx-indicator mt-6 overflow-hidden rounded-card border border-line bg-panel md:bg-canvas" aria-hidden="true">
+      <div class="h-14 border-b border-line/60"></div>
+      <div class="h-14 border-b border-line/60"></div>
+      <div class="h-14 border-b border-line/60"></div>
+      <div class="h-14"></div>
+    </div>
+
+    <!-- Load error -->
+    <div x-data="{ shown: false }" @fees-error.window="shown = true" x-show="shown" x-cloak
+         class="mt-4 rounded-card border border-overdue/40 bg-overdue/10 px-4 py-3 text-[15px]" role="alert">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <p>Couldn't load fees. Check your connection and try again.</p>
+        <button type="button" th:attr="hx-get=@{/admin/fees/panel(week=${weekParam},sort=${sort})}"
+                hx-target="#fees-panel" hx-swap="outerHTML" hx-indicator="#fees-panel"
+                class="inline-flex min-h-[44px] items-center rounded-[10px] border border-line bg-panel px-4 text-[15px] hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">Retry</button>
+      </div>
+    </div>
+
+  <!-- Invoice drawers: siblings of the table so table HTML stays valid -->
+  <div th:each="row : ${rows}" x-data="{ open: false }" th:data-id="${row.id}"
+       @open-row.window="if ($event.detail == $el.dataset.id) { open = true; $nextTick(() => $refs.close && $refs.close.focus()) } else { open = false }"
+       @keydown.escape.window="if (open) { open = false; $dispatch('row-focus', $el.dataset.id) }">
+    <div x-show="open" x-cloak x-transition.opacity class="fixed inset-0 z-50 bg-ink/20"
+         @click="open = false; $dispatch('row-focus', $el.closest('[data-id]').dataset.id)"></div>
+    <div x-show="open" x-cloak x-transition role="dialog" aria-modal="true" th:aria-label="'Invoice — ' + ${row.child}"
+         @keydown.tab.prevent="const f = $el.querySelectorAll('button:not([disabled]), a[href]'); const i = [...f].indexOf(document.activeElement); f[(i + (event.shiftKey ? -1 : 1) + f.length) % f.length].focus()"
+         class="fixed inset-x-0 bottom-0 z-50 max-h-[80dvh] overflow-y-auto rounded-t-[14px] border-t border-line bg-panel p-6 md:inset-y-0 md:left-auto md:right-0 md:w-[380px] md:max-h-none md:rounded-none md:border-l md:border-t-0">
+      <div class="flex items-start justify-between">
+        <div>
+          <h2 class="text-[17px] font-semibold tracking-[-0.03em]" th:text="${row.child}">Maria Jones</h2>
+          <p class="mt-1 text-[15px] text-muted" th:text="${row.parents}">Alison Jones, John Jones</p>
+        </div>
+        <button type="button" x-ref="close" @click="open = false; $dispatch('row-focus', $el.closest('[data-id]').dataset.id)" class="-mr-2 flex size-11 items-center justify-center rounded-[10px] text-muted hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink" aria-label="Close">
+          <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+
+      <p class="mt-4 text-[13px] uppercase tracking-[0.04em] text-muted" th:text="${weekLabel}">Jul 2023, Week 28</p>
+      <ul class="mt-3 divide-y divide-line border-y border-line">
+        <li th:each="line : ${row.lines()}" class="flex items-baseline justify-between gap-4 py-3 text-[15px]">
+          <span th:text="${line.description()}">Full-time, 5 days</span>
+          <span class="tabular-nums" th:classappend="${line.amountCents() < 0} ? 'text-paid'"
+                th:text="'€' + ${#numbers.formatDecimal(line.amountCents() / 100.0, 1, 2)}">€245.00</span>
+        </li>
+      </ul>
+
+      <dl class="mt-4 flex flex-col gap-2 text-[15px]">
+        <div class="flex justify-between"><dt class="text-muted">Total</dt><dd class="tabular-nums" th:text="'€' + ${#numbers.formatDecimal(row.dueCents() / 100.0, 1, 2)}">€187.50</dd></div>
+        <div class="flex justify-between"><dt class="text-muted">Paid</dt><dd class="tabular-nums" th:text="'€' + ${#numbers.formatDecimal(row.paidCents() / 100.0, 1, 2)}">€187.50</dd></div>
+        <div class="flex justify-between font-medium"><dt>Balance</dt><dd class="tabular-nums" th:text="'€' + ${#numbers.formatDecimal((row.dueCents() - row.paidCents()) / 100.0, 1, 2)}">€0.00</dd></div>
+      </dl>
+
+      <button type="button" th:unless="${row.status() == 'PAID'}"
+              th:attr="hx-post=@{/admin/fees/{id}/pay(id=${row.id},week=${weekParam},sort=${sort})}"
+              hx-target="#fees-panel" hx-swap="outerHTML" hx-indicator="#fees-panel"
+              @click="window.__grovePaidRow = $el.closest('[data-id]').dataset.id"
+              class="mt-6 inline-flex h-11 w-full items-center justify-center rounded-[10px] bg-ink text-[15px] font-medium text-panel hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink">
+        Record payment
+      </button>
+      <p th:if="${row.status() == 'PAID'}" class="mt-6 rounded-[10px] bg-paid/20 px-4 py-3 text-center text-[15px]">Paid in full. Lovely.</p>
+    </div>
+  </div>
+</div>

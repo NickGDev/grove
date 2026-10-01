@@ -1,0 +1,144 @@
+<!-- Attendance register: summary + date switcher + room cards. Swapped whole by htmx. -->
+<div th:fragment="panel" id="attendance-panel" x-data>
+
+  <!-- Summary cards -->
+  <div class="mt-8 flex flex-wrap gap-4">
+    <div class="flex min-w-[190px] flex-1 items-center gap-4 rounded-card border border-line bg-panel p-4 md:max-w-[220px] md:flex-none md:bg-canvas">
+      <span class="w-1.5 shrink-0 self-stretch rounded-full bg-paid" aria-hidden="true"></span>
+      <div>
+        <p class="text-2xl font-medium tracking-[-0.03em] tabular-nums" th:text="${presentCount}">12</p>
+        <p class="mt-1 text-[13px] uppercase tracking-[0.04em] text-muted">Checked in</p>
+      </div>
+    </div>
+    <div class="flex min-w-[190px] flex-1 items-center gap-4 rounded-card border border-line bg-panel p-4 md:max-w-[220px] md:flex-none md:bg-canvas">
+      <span class="w-1.5 shrink-0 self-stretch rounded-full bg-overdue" aria-hidden="true"></span>
+      <div>
+        <p class="text-2xl font-medium tracking-[-0.03em] tabular-nums" th:text="${absentCount}">1</p>
+        <p class="mt-1 text-[13px] uppercase tracking-[0.04em] text-muted">Absent</p>
+      </div>
+    </div>
+    <div class="flex min-w-[190px] flex-1 items-center gap-4 rounded-card border border-line bg-panel p-4 md:max-w-[220px] md:flex-none md:bg-canvas">
+      <span class="w-1.5 shrink-0 self-stretch rounded-full bg-muted" aria-hidden="true"></span>
+      <div>
+        <p class="text-2xl font-medium tracking-[-0.03em] tabular-nums" th:text="${expectedCount}">5</p>
+        <p class="mt-1 text-[13px] uppercase tracking-[0.04em] text-muted">Expected</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Date switcher -->
+  <div class="mt-6 flex flex-wrap items-center gap-4">
+    <div class="flex overflow-hidden rounded-[10px] border border-line" role="group" aria-label="Change day">
+      <button type="button" th:attr="hx-get=@{/admin/attendance/panel(date=${date.minusDays(1)})}"
+              hx-target="#attendance-panel" hx-swap="outerHTML" hx-indicator="#attendance-panel"
+              class="flex h-11 w-11 items-center justify-center border-r border-line bg-panel text-ink hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink md:bg-canvas"
+              aria-label="Previous day">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
+      </button>
+      <button type="button" th:attr="hx-get=@{/admin/attendance/panel(date=${date.plusDays(1)})}"
+              hx-target="#attendance-panel" hx-swap="outerHTML" hx-indicator="#attendance-panel"
+              class="flex h-11 w-11 items-center justify-center bg-panel text-ink hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink md:bg-canvas"
+              aria-label="Next day">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg>
+      </button>
+    </div>
+    <p class="text-[15px]" th:text="${dateLabel}" aria-live="polite">Wed 30 Sep</p>
+    <button type="button" th:unless="${isToday}" th:attr="hx-get=@{/admin/attendance/panel}"
+            hx-target="#attendance-panel" hx-swap="outerHTML" hx-indicator="#attendance-panel"
+            class="inline-flex h-11 items-center rounded-[10px] border border-line bg-panel px-4 text-[15px] text-muted hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink md:bg-canvas">
+      Today
+    </button>
+  </div>
+
+  <div class="attendance-body">
+    <!-- No rooms yet (fresh signup) -->
+    <div th:if="${#lists.isEmpty(rooms)}" class="mt-6 rounded-card border border-line bg-panel px-6 py-12 text-center md:bg-canvas">
+      <p class="text-[15px] text-muted">No rooms yet. Add your first room to start the register.</p>
+      <a href="/admin/settings" class="mt-4 inline-flex min-h-[44px] items-center text-[15px] text-ink underline underline-offset-4">Open settings</a>
+    </div>
+
+    <!-- Room registers -->
+    <div th:unless="${#lists.isEmpty(rooms)}" class="mt-6 flex flex-col gap-6">
+      <section th:each="room : ${rooms}" class="overflow-hidden rounded-card border border-line bg-panel md:bg-canvas" th:aria-label="'Register — ' + ${room.name}">
+        <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-6 py-4">
+          <h2 class="text-[17px] font-semibold tracking-[-0.03em]" th:text="${room.name}">Nestlings</h2>
+          <p class="text-[13px] uppercase tracking-[0.04em] text-muted">
+            <span class="tabular-nums" th:text="${#lists.size(room.children)}">2</span> enrolled · capacity <span class="tabular-nums" th:text="${room.capacity}">8</span>
+          </p>
+        </div>
+
+        <ul class="divide-y divide-line">
+          <li th:each="child : ${room.children}" class="flex min-h-14 flex-wrap items-center gap-x-4 gap-y-2 px-6 py-3">
+            <span class="min-w-0 flex-1 basis-40 truncate text-[15px] text-ink" th:text="${child.name}">Maria Jones</span>
+
+            <!-- Times -->
+            <span th:if="${child.checkIn != null}" class="text-[15px] text-muted tabular-nums"
+                  th:text="${child.checkOut != null}
+                    ? 'In ' + ${#temporals.format(child.checkIn, 'HH:mm')} + ' · Out ' + ${#temporals.format(child.checkOut, 'HH:mm')}
+                    : 'In ' + ${#temporals.format(child.checkIn, 'HH:mm')}">In 08:54</span>
+
+            <!-- Absence reason, when there is one -->
+            <span class="text-[15px] text-muted" th:if="${child.status == 'ABSENT' and child.absenceReason != null}" th:text="${child.absenceReason}">Sick</span>
+
+            <!-- Status chip: colour never the only signal -->
+            <span class="inline-flex items-center rounded-full px-3 py-1 text-[13px]"
+                  th:classappend="${child.status == 'PRESENT'} ? 'bg-paid/30' : (${child.status == 'ABSENT'} ? 'bg-overdue/20' : (${child.status == 'HOLIDAY'} ? 'bg-mint/40' : 'bg-active'))"
+                  th:text="${child.status == 'PRESENT'} ? 'Present' : (${child.status == 'ABSENT'} ? 'Absent' : (${child.status == 'HOLIDAY'} ? 'Holiday' : 'Not in'))">Present</span>
+
+            <!-- One-tap actions -->
+            <span class="ml-auto flex items-center gap-2">
+              <button th:if="${child.status == 'NOT_IN'}" type="button"
+                      th:attr="hx-post=@{/admin/attendance/{id}/check-in(id=${child.childId},date=${date})}"
+                      hx-target="#attendance-panel" hx-swap="outerHTML" hx-indicator="#attendance-panel"
+                      class="inline-flex h-11 items-center rounded-[10px] bg-ink px-4 text-[15px] font-medium text-panel hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink">
+                Check in
+              </button>
+              <button th:if="${child.status == 'NOT_IN'}" type="button"
+                      th:attr="hx-post=@{/admin/attendance/{id}/absent(id=${child.childId},date=${date})}"
+                      hx-target="#attendance-panel" hx-swap="outerHTML" hx-indicator="#attendance-panel"
+                      class="inline-flex h-11 items-center rounded-[10px] border border-line px-4 text-[15px] text-muted hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+                Mark absent
+              </button>
+              <button th:if="${child.status == 'PRESENT' and child.checkOut == null}" type="button"
+                      th:attr="hx-post=@{/admin/attendance/{id}/check-out(id=${child.childId},date=${date})}"
+                      hx-target="#attendance-panel" hx-swap="outerHTML" hx-indicator="#attendance-panel"
+                      class="inline-flex h-11 items-center rounded-[10px] border border-line px-4 text-[15px] text-ink hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+                Check out
+              </button>
+              <button th:if="${child.status == 'ABSENT'}" type="button"
+                      th:attr="hx-post=@{/admin/attendance/{id}/check-in(id=${child.childId},date=${date})}"
+                      hx-target="#attendance-panel" hx-swap="outerHTML" hx-indicator="#attendance-panel"
+                      class="inline-flex h-11 items-center rounded-[10px] border border-line px-4 text-[15px] text-ink hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+                Check in
+              </button>
+            </span>
+          </li>
+        </ul>
+
+        <div th:if="${#lists.isEmpty(room.children)}" class="px-6 py-8 text-center">
+          <p class="text-[15px] text-muted">No children in this room yet.</p>
+          <a href="/admin/children" class="mt-2 inline-flex min-h-[44px] items-center text-[15px] text-ink underline underline-offset-4">Add a child</a>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div class="htmx-indicator mt-6 overflow-hidden rounded-card border border-line bg-panel md:bg-canvas" aria-hidden="true">
+    <div class="h-14 border-b border-line/60"></div>
+    <div class="h-14 border-b border-line/60"></div>
+    <div class="h-14 border-b border-line/60"></div>
+    <div class="h-14"></div>
+  </div>
+
+  <!-- Load error -->
+  <div x-data="{ shown: false }" @attendance-error.window="shown = true" x-show="shown" x-cloak
+       class="mt-4 rounded-card border border-overdue/40 bg-overdue/10 px-4 py-3 text-[15px]" role="alert">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <p>Couldn't update the register. Check your connection and try again.</p>
+      <button type="button" th:attr="hx-get=@{/admin/attendance/panel(date=${date})}"
+              hx-target="#attendance-panel" hx-swap="outerHTML" hx-indicator="#attendance-panel"
+              class="inline-flex min-h-[44px] items-center rounded-[10px] border border-line bg-panel px-4 text-[15px] hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">Retry</button>
+    </div>
+  </div>
+</div>

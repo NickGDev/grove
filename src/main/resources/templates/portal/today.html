@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Today · Grove</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="bg-canvas text-ink font-sans antialiased">
+  <!-- Parent portal: phone-first, centred on larger screens -->
+  <div class="mx-auto min-h-dvh w-full max-w-[440px] px-4 pb-10 pt-6">
+
+    <header class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span class="flex size-9 items-center justify-center rounded-full bg-peach">
+          <svg viewBox="0 0 24 24" class="size-[18px]" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21c-4-3-7-6.5-7-10a7 7 0 0 1 14 0c0 3.5-3 7-7 10Z"/><path d="M12 3v4"/></svg>
+        </span>
+        <div>
+          <h1 class="text-[22px] font-semibold tracking-[-0.03em]">Today</h1>
+          <p class="text-[13px] text-muted" th:text="'Hi, ' + ${parentName}">Hi, Alison</p>
+        </div>
+      </div>
+      <form th:action="@{/logout}" method="post">
+        <button type="submit" class="inline-flex min-h-[44px] items-center rounded-[10px] px-3 text-[14px] text-muted underline-offset-4 hover:text-ink hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+          Sign out
+        </button>
+      </form>
+    </header>
+
+    <main class="mt-6 flex flex-col gap-4">
+      <section th:each="c : ${children}" class="rounded-card border border-line bg-panel p-6" th:aria-label="'Today — ' + ${c.name}">
+
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 class="text-[17px] font-semibold tracking-[-0.03em]" th:text="${c.name}">Maria Jones</h2>
+            <p class="mt-1 text-[15px] text-muted" th:text="${c.roomName}">Nestlings</p>
+          </div>
+          <div class="flex flex-col items-end gap-1">
+            <span class="inline-flex items-center rounded-full px-3 py-1 text-[13px]"
+                  th:classappend="${c.status == 'PRESENT'} ? 'bg-paid/30' : (${c.status == 'ABSENT'} ? 'bg-overdue/20' : (${c.status == 'HOLIDAY'} ? 'bg-mint/40' : 'bg-active'))"
+                  th:text="${c.status == 'PRESENT'} ? 'Present' : (${c.status == 'ABSENT'} ? 'Absent' : (${c.status == 'HOLIDAY'} ? 'Holiday' : 'Not in'))">Present</span>
+            <p th:if="${c.checkIn != null}" class="text-[13px] text-muted tabular-nums"
+               th:text="${c.checkOut != null}
+                 ? 'In ' + ${#temporals.format(c.checkIn, 'HH:mm')} + ' · Out ' + ${#temporals.format(c.checkOut, 'HH:mm')}
+                 : 'In ' + ${#temporals.format(c.checkIn, 'HH:mm')}">In 08:54</p>
+          </div>
+        </div>
+
+        <ul th:if="${!#lists.isEmpty(c.entries)}" class="mt-4 flex flex-col gap-3 border-t border-line pt-4">
+          <li th:each="e : ${c.entries}" class="flex items-baseline gap-3 text-[15px]">
+            <span class="inline-flex items-center rounded-full bg-active px-3 py-1 text-[13px]"
+                  th:text="${e.type == 'MEAL'} ? 'Meal' : (${e.type == 'NAP'} ? 'Nap' : (${e.type == 'TOILET'} ? 'Toilet' : (${e.type == 'ACTIVITY'} ? 'Activity' : 'Note')))">Meal</span>
+            <span th:if="${e.body}" class="min-w-0 flex-1" th:text="${e.body}">Ate everything</span>
+            <span class="ml-auto shrink-0 text-[13px] text-muted tabular-nums"
+                  th:text="${e.recordedAt} + ' · ' + ${e.recordedBy}">10:12 · Maria's teacher</span>
+          </li>
+        </ul>
+
+        <p th:if="${#lists.isEmpty(c.entries)}" class="mt-4 border-t border-line pt-4 text-[15px] text-muted">
+          Nothing from the room yet today. It's early — moments land here as they happen.
+        </p>
+      </section>
+
+      <p th:if="${#lists.isEmpty(children)}" class="rounded-card border border-line bg-panel px-6 py-12 text-center text-[15px] text-muted">
+        No children linked to you yet. Ask your creche to send an invite.
+      </p>
+
+      <p class="pt-2 text-center text-[13px] text-muted">Invoices, messages and forms to sign arrive here soon.</p>
+    </main>
+  </div>
+</body>
+</html>

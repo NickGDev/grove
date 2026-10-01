@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:fragment="head(title)">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${title} + ' · Grove'">Grove</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+  <meta name="csrf-token" th:content="${_csrf != null} ? ${_csrf.token} : ''">
+  <script th:src="@{/js/htmx.min.js}" defer></script>
+  <script th:src="@{/js/alpine.min.js}" defer></script>
+  <script>
+    document.addEventListener('htmx:configRequest', (e) => {
+      const t = document.querySelector('meta[name="csrf-token"]')?.content;
+      if (t) e.detail.headers['X-CSRF-TOKEN'] = t;
+    });
+    document.addEventListener('htmx:afterSwap', (e) => {
+      if (window.Alpine) window.Alpine.initTree(e.target);
+    });
+  </script>
+</head>
+<body class="bg-canvas text-ink font-sans antialiased">
+
+<!-- App navigation: desktop sidebar + mobile bottom tab bar (design.md shell) -->
+<div th:fragment="nav(active)" th:remove="tag">
+  <aside class="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-line bg-canvas px-3 pb-4 md:flex">
+    <a href="/admin" class="flex items-center gap-3 px-3 pb-4 pt-6">
+      <span class="flex size-8 items-center justify-center rounded-full bg-peach">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21c-4-3-7-6.5-7-10a7 7 0 0 1 14 0c0 3.5-3 7-7 10Z"/><path d="M12 3v4"/></svg>
+      </span>
+      <span class="text-[17px] font-semibold tracking-[-0.03em]">Grove</span>
+    </a>
+
+    <nav class="flex flex-col gap-1">
+      <a href="/admin" th:classappend="${active=='dashboard'} ? 'bg-active font-medium text-ink'" class="flex h-10 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></svg>
+        Dashboard
+      </a>
+      <a href="/admin/fees" th:classappend="${active=='fees'} ? 'bg-active font-medium text-ink'" class="flex h-10 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>
+        Easy fees
+      </a>
+      <a href="/admin/attendance" th:classappend="${active=='attendance'} ? 'bg-active font-medium text-ink'" class="flex h-10 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M9 14.5l2 2 4-4"/></svg>
+        Attendance
+      </a>
+      <a href="/admin/children" th:classappend="${active=='children'} ? 'bg-active font-medium text-ink'" class="flex h-10 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5.5 20c.5-3.5 3-5.5 6.5-5.5s6 2 6.5 5.5"/></svg>
+        Children
+      </a>
+      <a href="/admin/families" th:classappend="${active=='families'} ? 'bg-active font-medium text-ink'" class="flex h-10 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.5-3 2.5-4.5 5.5-4.5s5 1.5 5.5 4.5"/><circle cx="16.5" cy="9.5" r="2.5"/><path d="M16 14.5c2.5 0 4 1.5 4.5 4"/></svg>
+        Families
+      </a>
+      <a href="/admin/diary" th:classappend="${active=='diary'} ? 'bg-active font-medium text-ink'" class="flex h-10 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5.5C10.5 4 8 3.5 4.5 3.5V18c3.5 0 6 .5 7.5 2 1.5-1.5 4-2 7.5-2V3.5C16 3.5 13.5 4 12 5.5Z"/><path d="M12 5.5V20"/></svg>
+        Diary
+      </a>
+      <a href="/admin/forms" th:classappend="${active=='forms'} ? 'bg-active font-medium text-ink'" class="flex h-10 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h9L19.5 8v12.5H6z"/><path d="M14.5 3.5V8H19M9 12.5h6M9 16h4"/></svg>
+        Forms
+      </a>
+    </nav>
+
+    <div class="flex-1"></div>
+
+    <nav class="flex flex-col gap-1 border-t border-line pt-3">
+      <a href="/admin/messages" th:classappend="${active=='messages'} ? 'bg-active font-medium text-ink'" class="flex h-10 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5h16v11H12l-5 4v-4H4z"/></svg>
+        Inbox
+        <span th:if="${unreadCount != null and unreadCount > 0}" class="ml-auto flex size-5 items-center justify-center rounded-full bg-due text-[11px] font-medium text-ink" th:text="${unreadCount}">3</span>
+      </a>
+      <a href="/admin/reports" th:classappend="${active=='reports'} ? 'bg-active font-medium text-ink'" class="flex h-10 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M21 20H3"/></svg>
+        Reports
+      </a>
+      <a href="/admin/settings" th:classappend="${active=='settings'} ? 'bg-active font-medium text-ink'" class="flex h-10 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="8.5" cy="17" r="2"/></svg>
+        Settings
+      </a>
+      <div class="relative mt-2" x-data="{ user: false }" @keydown.escape.window="user=false" @click.outside="user=false">
+        <button type="button" aria-haspopup="menu" :aria-expanded="user" @click="user = !user"
+                class="flex w-full items-center gap-3 rounded-[10px] px-3 py-2 text-left hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink">
+          <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-mint text-[13px] font-medium text-ink" th:text="${userName} ? ${#strings.substring(userName,0,1)} : '·'">M</span>
+          <span class="text-[15px] text-ink" th:text="${userName}">Maria Byrne</span>
+          <svg viewBox="0 0 24 24" class="ml-auto size-4 text-muted" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div x-show="user" x-cloak x-transition @click="user=false"
+             class="absolute bottom-full left-0 mb-2 w-full rounded-card border border-line bg-panel p-2 shadow-[0_8px_30px_rgba(35,35,33,0.08)]"
+             role="menu" aria-label="Account">
+          <a href="/admin/profile" role="menuitem" class="flex h-11 items-center rounded-[10px] px-3 text-[15px] text-ink hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+            Your profile
+          </a>
+          <form th:action="@{/logout}" method="post" hx-boost="false">
+            <button type="submit" role="menuitem" class="flex h-11 w-full items-center rounded-[10px] px-3 text-left text-[15px] text-ink hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+              Sign out
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Mobile: bottom tab bar -->
+  <nav class="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-canvas pb-[env(safe-area-inset-bottom)] md:hidden" aria-label="Main" x-data="{ more: false }" @keydown.escape.window="more=false">
+    <!-- More sheet + backdrop -->
+    <div x-show="more" x-cloak x-transition.opacity class="fixed inset-0 z-40 bg-ink/20 md:hidden" @click="more=false"></div>
+    <div x-show="more" x-cloak x-transition
+         class="fixed inset-x-0 bottom-[calc(57px+env(safe-area-inset-bottom))] z-40 rounded-t-[14px] border-t border-line bg-canvas p-2 shadow-[0_-8px_30px_rgba(35,35,33,0.08)] md:hidden"
+         role="menu" aria-label="More pages">
+      <a href="/admin/children" @click="more=false" role="menuitem" th:classappend="${active=='children'} ? 'bg-active font-medium text-ink'" class="flex h-11 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5.5 20c.5-3.5 3-5.5 6.5-5.5s6 2 6.5 5.5"/></svg>
+        Children
+      </a>
+      <a href="/admin/families" @click="more=false" role="menuitem" th:classappend="${active=='families'} ? 'bg-active font-medium text-ink'" class="flex h-11 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.5-3 2.5-4.5 5.5-4.5s5 1.5 5.5 4.5"/><circle cx="16.5" cy="9.5" r="2.5"/><path d="M16 14.5c2.5 0 4 1.5 4.5 4"/></svg>
+        Families
+      </a>
+      <a href="/admin/forms" @click="more=false" role="menuitem" th:classappend="${active=='forms'} ? 'bg-active font-medium text-ink'" class="flex h-11 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h9L19.5 8v12.5H6z"/><path d="M14.5 3.5V8H19M9 12.5h6M9 16h4"/></svg>
+        Forms
+      </a>
+      <a href="/admin/reports" @click="more=false" role="menuitem" th:classappend="${active=='reports'} ? 'bg-active font-medium text-ink'" class="flex h-11 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M21 20H3"/></svg>
+        Reports
+      </a>
+      <a href="/admin/settings" @click="more=false" role="menuitem" th:classappend="${active=='settings'} ? 'bg-active font-medium text-ink'" class="flex h-11 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="8.5" cy="17" r="2"/></svg>
+        Settings
+      </a>
+      <a href="/admin/profile" @click="more=false" role="menuitem" th:classappend="${active=='profile'} ? 'bg-active font-medium text-ink'" class="flex h-11 items-center gap-3 rounded-[10px] px-3 text-[15px] text-muted hover:bg-active/60">
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.5-3.5 3.5-5.5 7.5-5.5s7 2 7.5 5.5"/></svg>
+        Your profile
+      </a>
+      <form th:action="@{/logout}" method="post" hx-boost="false" @click="more=false">
+        <button type="submit" role="menuitem" class="flex h-11 w-full items-center gap-3 rounded-[10px] px-3 text-left text-[15px] text-muted hover:bg-active/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+          <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Sign out
+        </button>
+      </form>
+    </div>
+    <div class="grid grid-cols-6">
+      <a href="/admin" th:classappend="${active=='dashboard'} ? 'text-ink'" class="flex min-h-[56px] flex-col items-center justify-center gap-1 text-muted">
+        <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></svg>
+        <span class="text-[11px]">Dashboard</span>
+      </a>
+      <a href="/admin/attendance" th:classappend="${active=='attendance'} ? 'text-ink'" class="flex min-h-[56px] flex-col items-center justify-center gap-1 text-muted">
+        <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M9 14.5l2 2 4-4"/></svg>
+        <span class="text-[11px]">Attendance</span>
+      </a>
+      <a href="/admin/diary" th:classappend="${active=='diary'} ? 'text-ink'" class="flex min-h-[56px] flex-col items-center justify-center gap-1 text-muted">
+        <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5.5C10.5 4 8 3.5 4.5 3.5V18c3.5 0 6 .5 7.5 2 1.5-1.5 4-2 7.5-2V3.5C16 3.5 13.5 4 12 5.5Z"/><path d="M12 5.5V20"/></svg>
+        <span class="text-[11px]">Diary</span>
+      </a>
+      <a href="/admin/fees" th:classappend="${active=='fees'} ? 'text-ink'" class="flex min-h-[56px] flex-col items-center justify-center gap-1 text-muted">
+        <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>
+        <span class="text-[11px]">Fees</span>
+      </a>
+      <a href="/admin/messages" th:classappend="${active=='messages'} ? 'text-ink'" class="relative flex min-h-[56px] flex-col items-center justify-center gap-1 text-muted">
+        <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5h16v11H12l-5 4v-4H4z"/></svg>
+        <span class="text-[11px]">Inbox</span>
+        <span th:if="${unreadCount != null and unreadCount > 0}" class="absolute right-4 top-1.5 flex size-5 items-center justify-center rounded-full bg-due text-[11px] font-medium text-ink" th:text="${unreadCount}">3</span>
+      </a>
+      <button type="button" @click="more = !more" :aria-expanded="more" aria-haspopup="menu"
+              th:classappend="${active=='children' or active=='families' or active=='forms' or active=='reports' or active=='settings' or active=='profile'} ? 'text-ink'"
+              class="flex min-h-[56px] flex-col items-center justify-center gap-1 text-muted">
+        <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>
+        <span class="text-[11px]">More</span>
+      </button>
+    </div>
+  </nav>
+</div>
+
+</body>
+</html>
