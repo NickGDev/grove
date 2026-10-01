@@ -17,7 +17,8 @@ java {
 
 // Override vulnerable BOM-managed versions (Dependabot fixes)
 extra["tomcat.version"] = "11.0.26"        // fixes CVE-2026-65905, CVE-2026-65182, CVE-2026-68525
-extra["jackson-bom.version"] = "3.1.7"     // fixes CVE-2026-68497, CVE-2026-91777, CVE-2026-91776, CVE-2026-83557, CVE-2026-19032
+extra["jackson-bom.version"] = "3.2.3"     // fixes CVE-2026-68497, CVE-2026-91777, CVE-2026-91776, CVE-2026-83557, CVE-2026-19032
+extra["jackson-2-bom.version"] = "2.22.3"  // fasterxml line paired with jackson 3.2.x: databind 3.2.3 needs jackson-annotations 2.22 (JsonApplyView)
 extra["commons-lang3.version"] = "3.21.0"  // CVE-2025-48924 fixed in 3.18.0; explicit pin
 
 repositories {
@@ -45,6 +46,18 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    constraints {
+        implementation("tools.jackson.core:jackson-databind:3.2.3") {
+            because("fixes CVE-2026-68497, CVE-2026-91777, CVE-2026-91776, CVE-2026-83557, CVE-2026-19032")
+        }
+        implementation("org.apache.commons:commons-lang3:3.21.0") {
+            because("fixes CVE-2025-48924")
+        }
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.26") {
+            because("fixes CVE-2026-65905, CVE-2026-65182, CVE-2026-68525")
+        }
+    }
 }
 
 tasks.withType<Test> {
