@@ -1,0 +1,12 @@
+# Keep the build context to what the Dockerfile actually copies.
+.gradle/
+build/
+bin/
+.claude/
+.codegraph/
+.github/
+docs/
+grove.db
+*.db
+docker-compose.yml
+deploy/

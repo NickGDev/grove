@@ -1,0 +1,17 @@
+# Prod-like profile for the docker-compose deployment demo (see docker-compose.yml).
+# Postgres instead of the SQLite dev default; schema from db/migration-postgres.
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db:5432/grove}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      # application.yml sets a SQLite PRAGMA init SQL; neutralize it for Postgres.
+      connection-init-sql: ""
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    locations: classpath:db/migration-postgres
+server:
+  forward-headers-strategy: framework   # behind nginx

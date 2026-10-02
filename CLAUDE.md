@@ -43,6 +43,7 @@ Radius 10 (controls) / 14 (cards) / 28 (window). 4px spacing base. 44px touch ta
 - Native image build: `./gradlew nativeCompile`
 - CSS: `bin/tailwindcss -i src/main/resources/static/css/input.css -o src/main/resources/static/css/app.css --minify` (`--watch` during template work)
 - Stop the app by port: `lsof -ti:8080 | xargs kill -9` (pattern-kills leave orphaned java processes)
+- Prod-shaped deploy demo: `docker compose up --build` → http://localhost:8080 via nginx (app + Postgres, `prod` profile + `db/migration-postgres`; stop bootRun first — port clash)
 
 ## Workflow
 - Backend chunks (Java, migrations, services, security, tests) go to the `backend-dev` agent (.claude/agents/backend-dev.md, Sonnet) — spawn via Agent tool, one coherent chunk per spawn, each chunk ends `./gradlew test` green.

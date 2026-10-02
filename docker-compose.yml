@@ -1,0 +1,44 @@
+# Grove — prod-shaped deployment demo: nginx -> Spring Boot app -> PostgreSQL.
+# Demo configuration: demo credentials, single replicas, one self-contained
+# network. Run: docker compose up --build -> http://localhost:8080
+services:
+  db:
+    # PG17, not 18: Flyway 12.4 (Boot 4.1.1 BOM) rejects PostgreSQL 18+.
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: grove
+      POSTGRES_USER: grove
+      POSTGRES_PASSWORD: grove # demo only
+    volumes:
+      # PG18+ images keep versioned data under /var/lib/postgresql/<major>;
+      # mount the parent so pg_upgrade across majors stays possible.
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U grove -d grove"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/grove
+      SPRING_DATASOURCE_USERNAME: grove
+      SPRING_DATASOURCE_PASSWORD: grove # demo only
+    depends_on:
+      db:
+        condition: service_healthy
+    mem_limit: 512m
+
+  nginx:
+    image: nginx:1.29-alpine
+    ports:
+      - "8080:80" # stop ./gradlew bootRun first — it also binds 8080
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+
+volumes:
+  pgdata:

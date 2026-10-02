@@ -52,6 +52,10 @@ dependencies {
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
     implementation("org.xerial:sqlite-jdbc")
     implementation("org.hibernate.orm:hibernate-community-dialects")
+    runtimeOnly("org.postgresql:postgresql")
+    // Flyway 10+ moved per-database support out of flyway-core; without this
+    // module Flyway rejects any Postgres connection (SQLite ships built in).
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
