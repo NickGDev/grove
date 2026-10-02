@@ -1,115 +1,109 @@
-# Grove — Creche Management Platform (Proof of Concept)
+# Grove: creche management platform (demo)
 
 > [!IMPORTANT]
-> **Proof of Concept / Technical Demo**: This repository is a technical demonstration of a multi-tenant childcare management platform built with modern 2026 Spring Boot 4 and Java 25 architecture. It is designed for evaluation and reference, not for direct production deployment without production infrastructure.
+> Proof of concept. Technical demo of a multi-tenant childcare management platform on Spring Boot 4 and Java 25, built for evaluation. Not production-ready without real infrastructure.
 
-Grove demonstrates how to build a high-performance, lightweight, multi-tenant SaaS application with minimal complexity: server-side rendering with Thymeleaf + htmx, modern Spring Security 7 with WebAuthn passkeys and magic links, and Java 25 Virtual Threads.
+Grove keeps a multi-tenant SaaS app deliberately simple: server-side rendering with Thymeleaf + htmx, Spring Security 7 with WebAuthn passkeys and magic links, and Java 25 virtual threads.
 
 | Dashboard | Easy fees |
 | :---: | :---: |
-| <a href="docs/screenshots/dashboard.png"><img src="docs/screenshots/dashboard.png" width="380" alt="Dashboard — today at a glance: children, rooms, register shortcut"></a> | <a href="docs/screenshots/fees.png"><img src="docs/screenshots/fees.png" width="380" alt="Fees — weekly totals due and paid, per-family breakdown"></a> |
+| <a href="docs/screenshots/dashboard.png"><img src="docs/screenshots/dashboard.png" width="380" alt="Dashboard: today at a glance, children, rooms, register shortcut"></a> | <a href="docs/screenshots/fees.png"><img src="docs/screenshots/fees.png" width="380" alt="Fees: weekly totals due and paid, per-family breakdown"></a> |
 | **Attendance** | **Profile & passkeys** |
-| <a href="docs/screenshots/attendance.png"><img src="docs/screenshots/attendance.png" width="380" alt="Attendance — one-tap check-in register by room"></a> | <a href="docs/screenshots/profile.png"><img src="docs/screenshots/profile.png" width="380" alt="Profile — WebAuthn passkey registration"></a> |
+| <a href="docs/screenshots/attendance.png"><img src="docs/screenshots/attendance.png" width="380" alt="Attendance: one-tap check-in register by room"></a> | <a href="docs/screenshots/profile.png"><img src="docs/screenshots/profile.png" width="380" alt="Profile: WebAuthn passkey registration"></a> |
 
----
+## Stack
 
-## Technical Stack & Architecture
-
-- **Language & Runtime**: Java 25 LTS with Project Loom Virtual Threads enabled (`spring.threads.virtual.enabled: true`).
-- **Framework**: Spring Boot 4.1.x with Spring Security 7, Spring Data JPA, and Flyway database migrations.
-- **Build System**: Gradle 9.8 (Kotlin DSL) with GraalVM Native Build Tools (`nativeCompile` ready).
-- **Database**: SQLite with Write-Ahead Logging (`PRAGMA journal_mode=WAL`), `PRAGMA busy_timeout=5000`, and tuned HikariCP connection pooling.
-- **Authentication**:
-  - Form login with BCrypt password hashing (minimum length 12).
-  - Passwordless authentication via single-use, hashed one-time tokens (magic links).
-  - WebAuthn / FIDO2 passkeys (biometric / hardware key support).
-- **Frontend**: Server-driven UI using Thymeleaf, htmx for dynamic fragment swaps, Alpine.js for interactive controls, and Tailwind CSS.
-- **Multi-Tenancy**: Tenant isolation enforced at the data layer via Hibernate `@TenantId` on all business entities (`creche_id`).
-- **Pipelines & Security**:
-  - CI pipeline running automated test suites on Java 25.
-  - Automated dependency freshness checks via Ben Manes Versions plugin.
-  - Static security analysis via GitHub CodeQL.
-  - Container & filesystem vulnerability scanning via Trivy.
-  - Automated dependency updates via Dependabot.
-
----
+- Java 25 LTS, virtual threads enabled (`spring.threads.virtual.enabled: true`)
+- Spring Boot 4.1.x: Spring Security 7, Spring Data JPA, Flyway migrations
+- Gradle 9.8 (Kotlin DSL), GraalVM native build tools (`nativeCompile`)
+- SQLite with WAL (`PRAGMA journal_mode=WAL`, `busy_timeout=5000`) and tuned HikariCP pooling
+- Auth: form login (BCrypt, min 12 chars), single-use hashed magic links, WebAuthn/FIDO2 passkeys
+- Server-driven UI: Thymeleaf, htmx fragment swaps, Alpine.js, Tailwind CSS
+- Multi-tenancy: Hibernate `@TenantId` on every business table (`creche_id`)
+- CI: tests on Java 25, dependency freshness checks, CodeQL, Trivy scanning, Dependabot
 
 ## Prerequisites
 
-- **Java 25**: OpenJDK 25 or compatible distribution (e.g. Temurin, Oracle JDK).
-- **Environment**: Set `JAVA_HOME` pointing to your Java 25 installation:
+- Java 25 (Temurin or similar), with `JAVA_HOME` set:
   ```bash
   export JAVA_HOME=/path/to/openjdk-25
   export PATH="$JAVA_HOME/bin:$PATH"
   ```
 
----
-
-## Build & Test
+## Build & test
 
 ```bash
-# Run tests (34 unit & integration tests with AOT test processing)
+# 34 unit & integration tests (AOT test processing included)
 ./gradlew test
 
-# Check for latest dependency updates
+# Check dependencies for updates
 ./gradlew dependencyUpdates
 
-# Build GraalVM native binary (optional, requires GraalVM with native-image)
+# GraalVM native binary (optional, needs GraalVM with native-image)
 ./gradlew nativeCompile
 ```
 
----
-
-## Running the Application
-
-Start the application with Gradle:
+## Run
 
 ```bash
 ./gradlew bootRun
 ```
 
-The application will start on `http://localhost:8080`.
+App starts on `http://localhost:8080`. First startup runs Flyway, which creates and seeds the demo database (`grove.db`) in the repo root.
 
-On first startup, Flyway automatically creates and seeds the demo database (`grove.db`) in the root directory.
+## Deploy demo (nginx + PostgreSQL)
 
----
+`docker-compose.yml` sketches a production-shaped deploy: nginx in front of the containerised app, PostgreSQL behind it.
 
-## Sample Logins & Demo Credentials
+```bash
+docker compose up --build
+```
 
-The database comes pre-seeded with a demonstration creche (**Grove Family Creche**):
+Open `http://localhost:8080` (nginx; the app container is not exposed directly). Same demo credentials, fresh database seeded by Flyway in Postgres. Magic links print to the app container: `docker compose logs -f app`.
 
-### 1. Creche Owner / Manager (Pre-seeded)
-- **Login URL**: `http://localhost:8080/login`
-- **Email**: `demo@grove.ie`
-- **Password**: `grove`
+| Service | Image | Role |
+| :--- | :--- | :--- |
+| `nginx` | `nginx:1.29-alpine` | Reverse proxy on `:80` (TLS termination point in a real deploy), 10 MB upload limit, `X-Forwarded-*` headers |
+| `app` | built from `Dockerfile` | Multi-stage Gradle 9 / JDK 25 build, layered boot jar on `eclipse-temurin:25-jre`, non-root user, `prod` profile |
+| `db` | `postgres:17-alpine` | PostgreSQL with a named volume; schema applied by Flyway (PG18 is rejected by the BOM-managed Flyway 12.4, noted on the compose service) |
 
-### 2. Passwordless Magic Link Login
-- Visit `http://localhost:8080/login/link`
-- Enter `demo@grove.ie`
-- In development mode, the magic link is logged directly to the server terminal:
-  ```
-  INFO ... DevMagicLinkSender : Magic link for demo@grove.ie (dev only, not emailed): http://localhost:8080/login/ott?token=...
-  ```
-- Click or copy the URL to authenticate instantly without a password.
+- The `prod` profile (`application-prod.yml`) applies the same schema through a parallel Postgres migration set (`db/migration-postgres`). Local dev stays on SQLite, the documented spec deviation; Postgres is what a real deployment would use.
+- `server.forward-headers-strategy: framework` makes the app honor the host/scheme headers nginx sets, so redirects and magic links carry the public URL.
+- Keep the data: `docker compose down`. Include the volume: `docker compose down -v`.
 
-### 3. WebAuthn Passkeys
-- After logging in, navigate to `http://localhost:8080/profile`.
-- Click **Register Passkey** to add a Touch ID, Face ID, Windows Hello, or YubiKey passkey for one-tap biometric login.
+## Demo logins
 
-### 4. New Creche Registration
-- Visit `http://localhost:8080/signup` to register a brand-new creche and administrative account.
+Pre-seeded creche: **Grove Family Creche**.
 
----
+### Owner/manager account
 
-## Key Demo Screens
+`http://localhost:8080/login` with `demo@grove.ie` / `grove`.
 
-- `/admin` — Overview of classrooms, enrollment, and attendance.
-- `/admin/attendance` — Real-time classroom attendance check-in / check-out.
-- `/admin/fees` — Billing management, ECCE/NCS subventions, and family invoice tracking.
-- `/admin/profile` — Account details and WebAuthn passkey registration.
+### Magic link (passwordless)
 
----
+Visit `http://localhost:8080/login/link` and enter `demo@grove.ie`. Dev mode logs the link to the terminal instead of emailing it:
+
+```
+INFO ... DevMagicLinkSender : Magic link for demo@grove.ie (dev only, not emailed): http://localhost:8080/login/ott?token=...
+```
+
+Click the URL to log in.
+
+### Passkeys
+
+Log in, go to `http://localhost:8080/profile`, click **Register Passkey** (Touch ID, Face ID, Windows Hello, YubiKey).
+
+### New creche
+
+Sign up at `http://localhost:8080/signup`.
+
+## Screens
+
+- `/admin`: classrooms, enrolment, attendance overview
+- `/admin/attendance`: check-in / check-out register
+- `/admin/fees`: billing, ECCE/NCS subventions, family invoices
+- `/admin/profile`: account details and passkey registration
 
 ## License
 
-This project is licensed under the Apache License 2.0.
+Apache License 2.0.
