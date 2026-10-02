@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * Easy fees screen (design.md). Stub data source — swapped for fee_item/subvention/invoice
+ * Easy fees screen (docs/design.md). Stub data source — swapped for fee_item/subvention/invoice
  * queries once the billing entities land. Week is ISO "2026-W40" form.
  */
 @Controller

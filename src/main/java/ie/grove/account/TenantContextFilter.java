@@ -16,7 +16,7 @@ import ie.grove.shared.TenantContext;
 
 /**
  * Resolves the signed-in user's creche into {@link TenantContext} before
- * controllers run and clears it afterwards (spec.md §6 — every query scoped
+ * controllers run and clears it afterwards (docs/spec.md §6 — every query scoped
  * to one creche). Instantiated inside {@link SecurityConfig} only — must not
  * double-register as a servlet bean.
  */

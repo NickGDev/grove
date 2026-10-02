@@ -44,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 /**
- * Passwordless login (spec.md §5): one-time-token magic links (hashed storage,
+ * Passwordless login (docs/spec.md §5): one-time-token magic links (hashed storage,
  * 10-minute expiry, single use, rate-limited generation, identical response
  * for known/unknown emails) and WebAuthn passkeys (endpoints up, credentials
  * stored on SQLite, user entities mapped to app_user). Views are the frontend

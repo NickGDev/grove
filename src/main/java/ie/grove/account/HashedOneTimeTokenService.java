@@ -18,7 +18,7 @@ import org.springframework.security.authentication.ott.OneTimeTokenService;
 import org.springframework.stereotype.Component;
 
 /**
- * SQLite-backed one-time tokens (spec.md §5 hardening): the value in the
+ * SQLite-backed one-time tokens (docs/spec.md §5 hardening): the value in the
  * emailed link is random and only its SHA-256 digest is stored, links expire
  * after 10 minutes, and consuming deletes the row so a link works exactly
  * once. Replaces Spring Security's JdbcOneTimeTokenService, which stores the

@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Attendance register (spec.md §7): today's room register with one-tap
+ * Attendance register (docs/spec.md §7): today's room register with one-tap
  * check-in, check-out and absent. Every endpoint takes the date param so the
  * week/history view can reuse the same code path in a later chunk.
  */

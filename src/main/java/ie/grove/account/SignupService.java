@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
- * Creche sign-up (spec.md §4.1, minus email verification — later chunk):
+ * Creche sign-up (docs/spec.md §4.1, minus email verification — later chunk):
  * creche + owner user + OWNER membership.
  *
  * Hibernate pins the tenant on a Session when it opens, so the membership

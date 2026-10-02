@@ -5,6 +5,12 @@
 
 Grove demonstrates how to build a high-performance, lightweight, multi-tenant SaaS application with minimal complexity: server-side rendering with Thymeleaf + htmx, modern Spring Security 7 with WebAuthn passkeys and magic links, and Java 25 Virtual Threads.
 
+| Dashboard | Easy fees |
+| :---: | :---: |
+| <a href="docs/screenshots/dashboard.png"><img src="docs/screenshots/dashboard.png" width="380" alt="Dashboard — today at a glance: children, rooms, register shortcut"></a> | <a href="docs/screenshots/fees.png"><img src="docs/screenshots/fees.png" width="380" alt="Fees — weekly totals due and paid, per-family breakdown"></a> |
+| **Attendance** | **Profile & passkeys** |
+| <a href="docs/screenshots/attendance.png"><img src="docs/screenshots/attendance.png" width="380" alt="Attendance — one-tap check-in register by room"></a> | <a href="docs/screenshots/profile.png"><img src="docs/screenshots/profile.png" width="380" alt="Profile — WebAuthn passkey registration"></a> |
+
 ---
 
 ## Technical Stack & Architecture
@@ -97,11 +103,10 @@ The database comes pre-seeded with a demonstration creche (**Grove Family Creche
 
 ## Key Demo Screens
 
-- `/admin/dashboard` — Overview of classrooms, enrollment, and attendance.
-- `/admin/fees` — Billing management, ECCE/NCS subventions, and family invoice tracking.
+- `/admin` — Overview of classrooms, enrollment, and attendance.
 - `/admin/attendance` — Real-time classroom attendance check-in / check-out.
-- `/admin/diary` — Daily child activity logs (meals, naps, notes).
-- `/portal/today` — Parent portal view showing child activity and updates.
+- `/admin/fees` — Billing management, ECCE/NCS subventions, and family invoice tracking.
+- `/admin/profile` — Account details and WebAuthn passkey registration.
 
 ---
 

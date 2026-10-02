@@ -25,7 +25,7 @@ public class GroveUserDetailsService implements UserDetailsService {
         String email = username == null ? "" : username.trim().toLowerCase();
         AppUser user = users.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("No account for " + email));
-        // Deactivated users lose access; their records stay (spec.md §4.7).
+        // Deactivated users lose access; their records stay (docs/spec.md §4.7).
         if (user.getStatus() == UserStatus.DEACTIVATED) {
             throw new org.springframework.security.authentication.DisabledException(
                     "Account is deactivated");

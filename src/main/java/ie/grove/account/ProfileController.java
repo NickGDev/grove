@@ -11,7 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
- * Profile surface (spec.md §4.5 — passkey management only for this chunk;
+ * Profile surface (docs/spec.md §4.5 — passkey management only for this chunk;
  * name/email/password edits are later). Lists the signed-in user's passkeys;
  * adding one is POST /webauthn/register, removing one is DELETE
  * /webauthn/register/{id} (both Spring Security endpoints, the delete

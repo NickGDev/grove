@@ -15,7 +15,7 @@ public class LoginController {
   }
 
   /**
-   * "Email me a sign-in link instead" (spec.md §4.3): the form here POSTs
+   * "Email me a sign-in link instead" (docs/spec.md §4.3): the form here POSTs
    * {@code username} to /login/link — Spring Security's one-time-token
    * generation URL — and {@code ?sent} shows the check-your-inbox note the
    * generation handler redirects to. Same view whatever the email.

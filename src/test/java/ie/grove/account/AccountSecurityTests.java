@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 /**
- * spec.md §4-§5: signup, form login, role walls, tenant context plumbing.
+ * docs/spec.md §4-§5: signup, form login, role walls, tenant context plumbing.
  * Runs against target/test.db (V1 schema + V2 demo seed). Emails get a run
  * suffix so reruns never collide with rows from an earlier run.
  */

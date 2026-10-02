@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * In-memory login throttle per email+IP (spec.md §5 hardening, demo-grade):
+ * In-memory login throttle per email+IP (docs/spec.md §5 hardening, demo-grade):
  * a fixed window of allowed failures before the pair is blocked. Blocked and
  * normal failures both land on {@code /login?error} — the page shows the same
  * message whether or not the account exists.

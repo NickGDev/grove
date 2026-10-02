@@ -3,10 +3,10 @@
 Childcare management SaaS (manager, staff, parent surfaces) built with modern Spring Boot 4 and Java 25.
 
 Source of truth, read before building:
-- `spec.md` — full build spec: scope, stack, data model, screens, security, build plan (§10), open decisions (§11).
-- `design.md` — UX guide for the fees screen: tokens, components, states.
+- `docs/spec.md` — full build spec: scope, stack, data model, screens, security, build plan (§10), open decisions (§11).
+- `docs/design.md` — UX guide for the fees screen: tokens, components, states.
 
-Conflict rule: `spec.md` owns architecture. `design.md`'s "React + shadcn" build note is stale — take its tokens and components, not its stack.
+Conflict rule: `docs/spec.md` owns architecture. `docs/design.md`'s "React + shadcn" build note is stale — take its tokens and components, not its stack.
 
 ## Stack
 Java 25 LTS, Spring Boot 4.x (confirm exact versions on start.spring.io at scaffold time). Thymeleaf + htmx, Alpine.js only for menus/dialogs. Tailwind standalone CLI, no Node. **SQLite** (xerial `sqlite-jdbc` + Hibernate community `SQLiteDialect`), not Postgres — local single-file demo DB; Flyway if its SQLite support resolves cleanly, else `schema.sql` via `spring.sql.init` (documented deviation, upgrade path is Postgres + Flyway untouched). Spring Security 7: form login, one-time-token magic link, WebAuthn passkeys. OpenPDF for invoices/signed forms. htmx SSE for live updates; Web Push deferred until HTTPS (see Interview context). PWA (manifest, service worker). Runs as one local process; Dockerise later.
@@ -27,7 +27,7 @@ Java 25 LTS, Spring Boot 4.x (confirm exact versions on start.spring.io at scaff
 - Rate-limit login/magic-link per IP and per email; same response whether the email exists or not.
 - Passwords: delegating encoder (bcrypt/Argon2), min length 12.
 
-## Design tokens (design.md)
+## Design tokens (docs/design.md)
 Canvas `#FAFAF8` · Panel `#FFFFFF` · Ink `#232321` · Muted `#6E6E69` · Line `#ECE9E2` · Active `#EDE8DA` · Mint `#C3E4D3` · Due yellow `#F4D24B` · Paid green `#7ED48E` · Peach `#F0916B`.
 Radius 10 (controls) / 14 (cards) / 28 (window). 4px spacing base. 44px touch targets. Sentence case. Summaries `€34,599` no decimals; decimals in row-level amounts. Tabular numerals for totals. Color never the only signal.
 
@@ -47,6 +47,7 @@ Radius 10 (controls) / 14 (cards) / 28 (window). 4px spacing base. 44px touch ta
 ## Workflow
 - Backend chunks (Java, migrations, services, security, tests) go to the `backend-dev` agent (.claude/agents/backend-dev.md, Sonnet) — spawn via Agent tool, one coherent chunk per spawn, each chunk ends `./gradlew test` green.
 - UX/template work stays in the main session, then passes the `ux-reviewer` agent gate.
+- Agent topology map: docs/agents.md.
 
 ## Domain & Local Execution
 Irish domain vocabulary: ECCE/NCS subventions, TUSLA inspections, GDPR for children's data.

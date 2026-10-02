@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 /**
- * Role walls per spec.md §5. Login is three-factor-optional: password form,
+ * Role walls per docs/spec.md §5. Login is three-factor-optional: password form,
  * one-time-token magic link (POST /login/link generates; the emailed
  * /login/ott?token=... URL consumes) and WebAuthn passkeys on rpId localhost
  * (demo origin). Remember-me and invites are later chunks; login rate limiting

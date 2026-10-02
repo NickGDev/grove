@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  * app_user, so save/delete are no-ops and a user entity exists for exactly
  * the active accounts. Removing a passkey goes through the credential
  * repository (Spring Security's DELETE /webauthn/register/&#123;id&#125;);
- * users themselves are deactivated, never deleted (spec.md §4.7).
+ * users themselves are deactivated, never deleted (docs/spec.md §4.7).
  */
 @Component
 public class AppUserWebAuthnUserEntityRepository implements PublicKeyCredentialUserEntityRepository {
@@ -70,7 +70,7 @@ public class AppUserWebAuthnUserEntityRepository implements PublicKeyCredentialU
 
     @Override
     public void delete(Bytes id) {
-        // No-op: users are deactivated, never deleted (spec.md §4.7).
+        // No-op: users are deactivated, never deleted (docs/spec.md §4.7).
     }
 
     private static boolean active(AppUser user) {

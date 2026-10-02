@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Throttles sign-in endpoints per email+IP (spec.md §5 hardening, demo-grade):
+ * Throttles sign-in endpoints per email+IP (docs/spec.md §5 hardening, demo-grade):
  * guards POST /login and POST /login/link with the same in-memory window, and
  * on the counted paths (magic-link generation) every request eats budget, so
  * a mailbox can get at most {@link LoginAttemptService}'s threshold of links

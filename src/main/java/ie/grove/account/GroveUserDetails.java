@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.User;
 
 /**
  * Authenticated principal: global identity plus the creche it resolves to.
- * {@code crecheId} is the first membership's creche (spec.md §5 — multi-creche
+ * {@code crecheId} is the first membership's creche (docs/spec.md §5 — multi-creche
  * users get a picker in a later chunk) and feeds {@code TenantContext}.
  */
 public final class GroveUserDetails extends User {

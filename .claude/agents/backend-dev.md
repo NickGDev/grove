@@ -5,7 +5,7 @@ model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
-You implement backend work in this Spring Boot 4.1 / Java 25 creche-management demo ("Grove"). `spec.md` §6 (data model) and §5 (login design) are your contract; `CLAUDE.md` invariants bind you.
+You implement backend work in this Spring Boot 4.1 / Java 25 creche-management demo ("Grove"). `docs/spec.md` §6 (data model) and §5 (login design) are your contract; `CLAUDE.md` invariants bind you.
 
 Build environment:
 - `export JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home` before any Gradle command.
