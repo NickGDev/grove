@@ -3,7 +3,7 @@ buildscript {
         constraints {
             // spring-boot-buildpack-platform 4.1.1 pulls these on the plugin classpath;
             // project-level constraints below cannot reach it, but the SBOM includes it.
-            classpath("tools.jackson.core:jackson-databind:3.2.3") {
+            classpath("tools.jackson.core:jackson-databind:3.2.4") {
                 because("buildpack platform pulls 3.1.5 (Dependabot alerts 5-9)")
             }
             classpath("org.apache.commons:commons-lang3:3.21.0") {
@@ -67,7 +67,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     constraints {
-        implementation("tools.jackson.core:jackson-databind:3.2.3") {
+        implementation("tools.jackson.core:jackson-databind:3.2.4") {
             because("fixes CVE-2026-68497, CVE-2026-91777, CVE-2026-91776, CVE-2026-83557, CVE-2026-19032")
         }
         implementation("org.apache.commons:commons-lang3:3.21.0") {
