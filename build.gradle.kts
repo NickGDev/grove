@@ -73,7 +73,7 @@ dependencies {
         implementation("org.apache.commons:commons-lang3:3.21.0") {
             because("fixes CVE-2025-48924")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.26") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.27") {
             because("fixes CVE-2026-65905, CVE-2026-65182, CVE-2026-68525")
         }
     }
