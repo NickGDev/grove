@@ -15,7 +15,7 @@ buildscript {
 
 plugins {
     java
-    id("org.springframework.boot") version "4.1.1"
+    id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.graalvm.buildtools.native") version "1.1.14"
     id("com.github.ben-manes.versions") version "0.64.0"
