@@ -6,7 +6,7 @@ buildscript {
             classpath("tools.jackson.core:jackson-databind:3.2.3") {
                 because("buildpack platform pulls 3.1.5 (Dependabot alerts 5-9)")
             }
-            classpath("org.apache.commons:commons-lang3:3.21.0") {
+            classpath("org.apache.commons:commons-lang3:3.22.0") {
                 because("buildpack platform pulls 3.16.0 (Dependabot alert 1)")
             }
         }
@@ -70,7 +70,7 @@ dependencies {
         implementation("tools.jackson.core:jackson-databind:3.2.3") {
             because("fixes CVE-2026-68497, CVE-2026-91777, CVE-2026-91776, CVE-2026-83557, CVE-2026-19032")
         }
-        implementation("org.apache.commons:commons-lang3:3.21.0") {
+        implementation("org.apache.commons:commons-lang3:3.22.0") {
             because("fixes CVE-2025-48924")
         }
         implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.26") {
